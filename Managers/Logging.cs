@@ -29,9 +29,7 @@ namespace Managers
         
         public static void Prepare()
         {
-            File.WriteAllText(Env.LogfilePath, string.Empty);
-            
-            Loud("[SoundBending.Managers.SoundboardActions] Prepare: Logfile cleared. Setup successful.");
+            Loud("[SoundBending.Managers.Log] Prepare: noop lol");
         }
         
         

@@ -44,21 +44,25 @@ namespace Managers
         
         public static bool AllActive(params Binding[] inputs)
         {
+            Log.Open("[SoundBending.Managers.Input] > AllActive;");
+            
             foreach (var input in inputs)
             {
                 if (!input.Active())
                 {
-                    Log.Quiet("[SoundBending.Managers.Input] > AllActive: maps " + 
+                    Log.Quiet("maps `" + 
                               string.Join("; ", inputs.Select(i => i.map.name).ToList()) + 
-                              " returning false");
+                              "` returning false");
                     
                     return false;
                 }
             }
             
-            Log.Loud("[SoundBending.Managers.Input] > AllActive: maps " + 
+            Log.Loud("maps `" + 
                      string.Join("; ", inputs.Select(i => i.map.name).ToList()) + 
-                     " returning true");
+                     "` returning true");
+            
+            Log.Close("[SoundBending.Managers.Input] > AllActive;");
             
             return true;
         }
@@ -105,14 +109,14 @@ namespace Managers
                 if (armed && allHigh)
                 {
                     armed = false;
-                    Log.Quiet("[SoundBending.Managers.Input] > Binding.Active: map " + map.name + " pressed");
+                    Log.Quiet("[SoundBending.Managers.Input] > Binding.Active: map `" + map.name + "` pressed");
                     return true;
                 }
 
                 // once everything is back down under the releaseThreshold, re-arm
                 if (!armed && allLow)
                 {
-                    Log.Quiet("[SoundBending.Managers.Input] > Binding.Active: map " + map.name + " rearming");
+                    Log.Quiet("[SoundBending.Managers.Input] > Binding.Active: map `" + map.name + "` rearming");
                     armed = true;
                 }
 

@@ -31,6 +31,8 @@ namespace Managers
         {
             File.Create(LogfilePath).Close();
             
+            File.WriteAllText(LogfilePath, string.Empty);
+            
             if (!Directory.Exists(MelonEnvironment.UserDataDirectory + @"\SoundBending\"))
             {
                 Directory.CreateDirectory(MelonEnvironment.UserDataDirectory + @"\SoundBending\");
@@ -58,10 +60,10 @@ namespace Managers
         ""Strict"": true
     },
 
-    ""DebugLevel"": 0
+    ""LolLevel"": 2
 }");
 
-                Msg("[SoundBending.Managers.Env] Prepare: You forgot the configuration file, goober. Go look at the readme.");
+                Msg("[SoundBending.Managers.Env] Prepare: You forgot the configuration file, goober.");
             }
             
             Directory.CreateDirectory(SoundRoot);
@@ -71,7 +73,7 @@ namespace Managers
             
             if (Config.LogLevel > 0)
             {
-                Msg("[SoundBending.Managers.Env] Prepare: Environment manager initialized.");
+                Msg("[SoundBending.Managers.Env] Prepare: Environment initialized.");
             }
             
             useLogger = true;

@@ -1,4 +1,8 @@
-﻿using Managers;
+﻿//
+//      The owning service for the integration with NameBending. Disables autoplay for the Soundboard service.
+//
+
+using Managers;
 using NBManagers;
 
 namespace Services
@@ -9,7 +13,7 @@ namespace Services
         {
             NBConfiguration.Prepare();
             
-            Log.Loud("[SoundBending.Services.NameBending] Setup: This integration is still under construction! It currently doesn't do anything.");
+            Log.Loud("[SoundBending.Services.NameBending] Setup: This service is still under construction! It currently doesn't do anything.");
         }
         
         public static void Run()
@@ -34,7 +38,8 @@ namespace Services
         public static void PlayNBSound(string soundName)
         {
             string path = Env.NBSoundRoot + soundName + ".mp3";
-            Audio.PlaySound(path);
+            Audio.PlayLocal(path);
+            Audio.PlayRemote(path);
         }
     }
 }

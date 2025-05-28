@@ -23,10 +23,10 @@ namespace SoundBending
         // simply utility for OnApplicationStart / Activity check
         private static string fmtActivity(string serviceName)
         {
-            return Env.IsServiceEnabled(serviceName) ? "ACTIVE" : "x";
+            return Env.IsServiceEnabled(serviceName) ? "ACTIVE" : "inactive";
         }
 
-        public void Startup(string sceneName) => Log.Wrap(
+        private void Startup(string sceneName) => Log.Wrap(
         "[SoundBending.Mod] > Startup", null, null, () => {
             Env.Prepare();
             Log.Prepare();
@@ -70,8 +70,11 @@ namespace SoundBending
         {
             if (!startupComplete)
             {
+                if (sceneName != "Gym") return;
+                
                 Startup(sceneName);
                 startupComplete = true;
+                
                 return;
             }
             
@@ -85,7 +88,7 @@ namespace SoundBending
             });
         }
 
-
+        
         private void RefreshServices(string sceneName) => Log.Wrap(
         "[SoundBending.Mod] > RefreshServices", null, null, () => {
             // on first run, assume no services are currently on.
@@ -96,7 +99,7 @@ namespace SoundBending
 
             List<string> curr = Env.Config.Services;
 
-            // ENABLE NEW SERVICES
+            // enables any new services
             if (curr.Contains("HighNoon") && !prev.Contains("HighNoon"))
             {
                 HighNoonService.Setup();
@@ -118,7 +121,7 @@ namespace SoundBending
             }
 
 
-            // DISABLE OLD SERVICES
+            // disables any old services
             if (!curr.Contains("HighNoon") && prev.Contains("HighNoon"))
             {
                 HighNoonService.Cleanup();
@@ -139,7 +142,7 @@ namespace SoundBending
                 NamebendingIntegrationService.Cleanup();
             }
 
-            // RUN SERVICE SCENE LOAD HANDLERS
+            // runs any service scene load handlers
             if (Env.IsServiceEnabled("HighNoon"))
             {
                 HighNoonService.SceneLoaded(sceneName);
