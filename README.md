@@ -142,7 +142,7 @@ To actually use it, though:
 }
 ```
 
-SoundBending will assume there is a file called `"Buddy Holly.mp3"` under `(Rumble Path)\UserData\NameBending\soundbendingSounds\`, and will play it if this variation is used by NameBending and if the preference/strictness settings allow it.
+SoundBending will assume there is a `.mp3` file called `"Buddy Holly"` under `(Rumble Path)\UserData\NameBending\soundbendingSounds\`, and will play it if this variation is used by NameBending and if the preference/strictness settings allow it.
 
 
 
