@@ -1,0 +1,125 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+    <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props"
+            Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')"/>
+    <PropertyGroup>
+        <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+        <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+        <ProjectGuid>{B3888A39-FB62-41A7-A87B-496971AAA02F}</ProjectGuid>
+        <OutputType>Library</OutputType>
+        <AppDesignerFolder>Properties</AppDesignerFolder>
+        <RootNamespace>SoundBending</RootNamespace>
+        <AssemblyName>SoundBending</AssemblyName>
+        <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
+        <FileAlignment>512</FileAlignment>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugSymbols>true</DebugSymbols>
+        <DebugType>full</DebugType>
+        <Optimize>false</Optimize>
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <PlatformTarget>AnyCPU</PlatformTarget>
+        <DebugType>pdbonly</DebugType>
+        <Optimize>true</Optimize>
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>TRACE</DefineConstants>
+        <ErrorReport>prompt</ErrorReport>
+        <WarningLevel>4</WarningLevel>
+    </PropertyGroup>
+    <ItemGroup>
+        <Reference Include="Il2CppInterop.Common">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\net6\Il2CppInterop.Common.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2CppInterop.Runtime">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\net6\Il2CppInterop.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2Cppmscorlib">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\Il2Cppmscorlib.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2CppPhotonChat">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\Il2CppPhotonChat.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2CppRUMBLE.Plugins">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\Il2CppRUMBLE.Plugins.dll</HintPath>
+        </Reference>
+        <Reference Include="Il2CppRUMBLE.Runtime">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\Il2CppRUMBLE.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="MelonLoader">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\net6\MelonLoader.dll</HintPath>
+        </Reference>
+        <Reference Include="NAudio">
+            <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\UserLibs\NAudio.dll</HintPath>
+        </Reference>
+        <Reference Include="NAudio.Core">
+            <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\UserLibs\NAudio.Core.dll</HintPath>
+        </Reference>
+        <Reference Include="NAudio.WinForms">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\UserLibs\NAudio.WinForms.dll</HintPath>
+        </Reference>
+        <Reference Include="NAudio.WinMM">
+            <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\UserLibs\NAudio.WinMM.dll</HintPath>
+        </Reference>
+        <Reference Include="Newtonsoft.Json">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\UserLibs\Newtonsoft.Json.dll</HintPath>
+        </Reference>
+        <Reference Include="PhotonUnityNetworking">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\cpp2il_out\PhotonUnityNetworking.dll</HintPath>
+        </Reference>
+        <Reference Include="RUMBLE.Runtime">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Dependencies\Il2CppAssemblyGenerator\Cpp2IL\cpp2il_out\RUMBLE.Runtime.dll</HintPath>
+        </Reference>
+        <Reference Include="RumbleModdingAPI">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\Mods\RumbleModdingAPI.dll</HintPath>
+        </Reference>
+        <Reference Include="System"/>
+        <Reference Include="System.Core"/>
+        <Reference Include="System.Data"/>
+        <Reference Include="System.Xml"/>
+        <Reference Include="Unity.InputSystem">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\Unity.InputSystem.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.AudioModule">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\UnityEngine.AudioModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.CoreModule">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\UnityEngine.CoreModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputLegacyModule">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Dependencies\Il2CppAssemblyGenerator\UnityDependencies\UnityEngine.InputLegacyModule.dll</HintPath>
+        </Reference>
+        <Reference Include="UnityEngine.InputModule">
+          <HintPath>D:\SteamLibrary\steamapps\common\RUMBLE\MelonLoader\Il2CppAssemblies\UnityEngine.InputModule.dll</HintPath>
+        </Reference>
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Managers\Logging.cs" />
+        <Compile Include="Managers\SoundboardActions.cs" />
+        <Compile Include="Managers\Audio.cs" />
+        <Compile Include="Managers\Environment.cs" />
+        <Compile Include="Managers\Input.cs" />
+        <Compile Include="Managers\State.cs" />
+        <Compile Include="Services\HighNoon.cs" />
+        <Compile Include="Services\NameBending.cs" />
+        <Compile Include="Services\NBManagers\Configuration.cs" />
+        <Compile Include="Services\NoMute.cs" />
+        <Compile Include="Services\Soundboard.cs" />
+        <Compile Include="Properties\AssemblyInfo.cs"/>
+        <Compile Include="SoundBending.cs" />
+    </ItemGroup>
+    <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
+         Other similar extension points exist, see Microsoft.Common.targets.
+    <Target Name="BeforeBuild">
+    </Target>
+    <Target Name="AfterBuild">
+    </Target>
+    -->
+
+</Project>
