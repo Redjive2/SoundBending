@@ -54,7 +54,7 @@ namespace SoundBending
             Log.Loud("SoundBending active!");
         });
 
-        public override void OnLateUpdate()
+        public override void OnFixedUpdate()
         {
             if (!startupComplete)
             {
