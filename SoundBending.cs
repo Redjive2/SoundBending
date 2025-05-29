@@ -72,6 +72,7 @@ namespace SoundBending
         // This is called slightly after the usual "OnSceneWasLoaded", hopefully keeping SoundBending from causing issues.
         public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
+            // On first gym load: go to startup. Avoids RumbleModdingAPI not being quite ready yet.
             if (!startupComplete)
             {
                 if (sceneName != "Gym") return;
@@ -82,6 +83,7 @@ namespace SoundBending
                 return;
             }
             
+            // Every other load (except Loader), refresh services and called scene loaders. General bookkeeping stuff, hence the hard logging wrap.
             Log.Wrap("[SoundBending.Mod] OnSceneWasLoaded", "Refreshing services...", "Services refreshed & SceneLoaded events called!", () => {
                 RefreshServices(sceneName);
         
