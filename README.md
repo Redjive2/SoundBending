@@ -5,11 +5,12 @@
 I will be adding an optional ModUI integration, some visual/physical stuff (show file name when switching sounds, extra controls on arm, mute status on healthbar, etc.), a sound API for other devs to use, and hopefully handrolling an audio pipe so the user doesn't have to download one separately. Also, improvements to the logging tool and more testing, I guess.
 
 ## Installation
-I strongly recommend that you use the installer (NOT YET IMPLEMENTED). All you need to do is download `\Installer\Bin\`, then run `\Installer\Bin\installer.exe`. If that doesn't work, or you're deadset on manual installation, you can follow these steps (7 total):
+I strongly recommend that you use the installer (NOT YET IMPLEMENTED). All you need to do is download `\Installer\Bin\`, then run `\Installer\Bin\installer.exe`. If that doesn't work, or you're deadset on manual installation, you can follow these steps (8 total):
 
 1) Download the `\Bin\` and `\Sfx\` folders.
 2) Put the file `\Bin\SoundBending.dll` into `(Rumble Path)\Mods\`.
 3) Put all the files in `\Bin\UserLibs\` into `(Rumble Path)\UserLibs\`.
+4) Ensure you have `RumbleModdingAPI` from UlvakSkillz in your `(Rumble Path)\Mods\` folder.
 5) Run RUMBLE and do the T-Pose. This will populate your `(Rumble Path)\UserData\` folder with a subfolder called `SoundBending`, containing an `Sfx` folder, a `Sounds` folder, and two files: `Config.json` and `Latest.log`. Do not close the game until you've been in the gym for a few seconds.
 6) Move all files from the original `\Sfx\` that you downloaded into the folder `(Rumble Path)\UserData\SoundBending\Sfx\`.
 
@@ -72,7 +73,7 @@ You'll want to read your logfile. It'll be stored at `(Rumble Path)\UserData\Sou
 | << [SoundBending.Mod] > Startup;
 ```
 
-6) You'll want to focus on the `Input`/`Output` table near the top. Find your headphones/speakers, microphone, and virtual cable input (this will be under `Output`). Copy + Paste each one into its respective place in your `Config.json`.
+7) You'll want to focus on the `Input`/`Output` table near the top. Find your headphones/speakers, microphone, and virtual cable input (this will be under `Output`). Copy + Paste each one into its respective place in your `Config.json`.
 You should end up with a configuration file similar to this:
 
 ```json
@@ -94,7 +95,7 @@ You should end up with a configuration file similar to this:
 }
 ```
 
-7) You'll also want to set your virtual cable output (listed under `Input` in the logfile) as your microphone in Steam/Oculus.
+8) You'll also want to set your virtual cable output (listed under `Input` in the logfile) as your microphone in Steam/Oculus.
 
 ------
 
