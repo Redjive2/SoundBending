@@ -5,7 +5,7 @@
 I will be adding an optional ModUI integration, some visual/physical stuff (show file name when switching sounds, extra controls on arm, mute status on healthbar, etc.), a sound API for other devs to use, and hopefully handrolling an audio pipe so the user doesn't have to download one separately. Also, improvements to the logging tool and more testing, I guess.
 
 ## Installation
-I strongly recommend that you use the installer (NOT YET IMPLEMENTED). All you need to do is download `\Installer\Bin\`, then run `\Installer\Bin\installer.exe`. If that doesn't work, or you're deadset on manual installation, you can follow these steps (8 total):
+I strongly recommend that you use the installer. All you need to do is download `\Installer\Bin\`, then run `\Installer\Bin\installer.exe`. If that doesn't work, or you're deadset on manual installation, you can follow these steps (8 total):
 
 1) Download the `\Bin\` and `\Sfx\` folders.
 2) Put the file `\Bin\SoundBending.dll` into `(Rumble Path)\Mods\`.
