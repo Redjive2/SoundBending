@@ -1,7 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Text;
 using MelonLoader;
+using MelonLoader.Utils;
 
 namespace Managers
 {
@@ -24,23 +27,32 @@ namespace Managers
         
         // The current logging strategy: eager OR lazy.
         private static Logger activeLogger = EagerLogger;
-        
+
+        // Holds the relevant handle to the logfile to improve logging performance over File.AppendAllText (which is slow bc open/close every time)
+        private static FileStream logfileStream;
         
         
         public static void Prepare()
         {
-            Loud("[SoundBending.Managers.Log] Prepare: noop lol");
+            logfileStream = File.Open(Env.LogfilePath, FileMode.Append, FileAccess.Write, FileShare.Read);
+            Loud("[SoundBending.Managers.Log] Prepare: Logfile handle ready");
+        }
+
+        public static void Deinit()
+        {
+            logfileStream.Close();
+            MelonLogger.Msg("|    [SoundBending.Managers.Log] Deinit: logfile stream closed");
         }
         
         
         
-        // Just forwards to MelonLogger.Msg.
+        // Just forwards to MelonLogger.Msg and the log file
         private static void EagerLogger(string message)
         {
             string formatted = depth + message;
             
             MelonLogger.Msg(formatted);
-            File.AppendAllText(Env.LogfilePath, "| " + formatted + "\n");
+            logfileStream.WriteAsync(Encoding.UTF8.GetBytes("| " + formatted + "\n"), 0, 2 + formatted.Length + 1);
         }
         
         // Just pushes to logStack until Close is called, then either drains (if shouldDrain is marked) or gets cleared.
@@ -57,20 +69,26 @@ namespace Managers
                 string log = logStack.Dequeue();
                 
                 MelonLogger.Msg(log);
-                File.AppendAllText(Env.LogfilePath, "+ " + log + "\n");
+                
+                logfileStream.WriteAsync(Encoding.UTF8.GetBytes("+ " + log + "\n"), 0, 2 + log.Length + 1);
             }
 
             logStack.Clear();
         }
         
         
-        
-        // Log messages for sure
+        // Log messages loudly and ALWAYS drain when any loglevel is on
         public static void Force(params string[] args)
         {
-            if (isLazy) shouldDrain = true;
+            if (Env.LogLevel > 0)
+            {
+                if (isLazy)
+                {
+                    shouldDrain = true;
+                }
                 
-            activeLogger(args[0]);
+                activeLogger(args[0]);
+            }
         }
         
         // Log messages loudly (in any debug mode)
@@ -140,6 +158,8 @@ namespace Managers
             Close(fromTag + (postfix != null ? ": " + postfix : ";"));
         }
 
+        
+        
         // Same as Wrap, but for functions that run every frame. Very useful for reducing log sizes. Only triggers 1) on Loud calls AND 2) when DebugLevel is 2 or greater.
         public static void WrapLazy(string fromTag, string prefix, string postfix, Action action)
         {

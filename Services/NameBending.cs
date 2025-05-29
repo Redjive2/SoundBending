@@ -37,9 +37,9 @@ namespace Services
         
         public static void PlayNBSound(string soundName)
         {
-            string path = Env.NBSoundRoot + soundName + ".mp3";
-            Audio.PlayLocal(path);
-            Audio.PlayRemote(path);
+            // string path = Env.NBSoundRoot + soundName + ".mp3";
+            // Audio.PlayLocal(path);
+            // Audio.PlayRemote(path);
         }
     }
 }

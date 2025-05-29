@@ -73,9 +73,20 @@ namespace Services
                 Log.Quiet("[SoundBending.Services.HighNoon] Sound played already?");
                 return;
             }
+            
             soundPlayed = true;
+            
+
+            if (!State.Paused)
+            {
+                Audio.LocalWaveOut.Stop();
+                Audio.RemoteWaveOut.Stop();
+
+                State.Paused = true;
+                State.SoundChanged = true;
+            }
                     
-            Audio.PlaySfx("high_noon");
+            Audio.PlayLocal(Env.SfxRoot + "high_noon.mp3");
             Audio.PlayRemote(Env.SfxRoot + "high_noon.mp3");
             
             Log.Loud("[SoundBending.Services.HighNoon] > HealthChanged: It's High Noon...");

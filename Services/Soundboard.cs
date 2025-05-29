@@ -1,5 +1,4 @@
 ﻿using Managers;
-using MelonLoader;
 
 namespace Services
 {
@@ -110,11 +109,13 @@ namespace Services
         
         public static void SceneLoaded(string sceneName)
         {
+            // Play (usually boss) music on scene load IF loading into a multiplayer scene without NamebendingIntegration active (since NbI does autoplay)
             if (State.PlayOnLoad && sceneName != "Gym" && !Env.IsServiceEnabled("NamebendingIntegration"))
             {
-                string path = Env.SoundRoot + State.CurrentSound + ".mp3";
-                Audio.PlayLocal(path);
-                Audio.PlayRemote(path);
+                Audio.PlaySound(State.CurrentSound);
+                
+                State.Paused = false;
+                State.SoundChanged = false;
                 
                 Log.Loud("[SoundBending.Services.Soundboard] SceneLoaded: Playing " + State.CurrentSound);
             }

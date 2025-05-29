@@ -1,4 +1,6 @@
 ﻿using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using MelonLoader;
 using NAudio.Wave;
 using UnityEngine;
@@ -18,7 +20,41 @@ namespace Managers
         public static int SpeakerOut;
         public static int InputCableOut;
 
+        private static Dictionary<string, Mp3FileReader> localPool = new Dictionary<string, Mp3FileReader>();
+        private static Dictionary<string, Mp3FileReader> remotePool = new Dictionary<string, Mp3FileReader>();
+        private static Dictionary<string, Mp3FileReader> sfxPool = new Dictionary<string, Mp3FileReader>();
 
+        // Stores a reference to one of the readers in its respective reader pool.
+        public static Mp3FileReader LocalReader;
+        public static Mp3FileReader RemoteReader;
+        public static Mp3FileReader SfxReader;
+
+        public static Mp3FileReader GetReaderOrAdd(ref Dictionary<string, Mp3FileReader> pool, string path)
+        {
+            if (pool.ContainsKey(path))
+            {
+                Log.Quiet($"[SoundBending.Managers.Audio] > GetReaderOrAdd: Found a reader for `{path}`!");
+                
+                Mp3FileReader reader = pool[path];
+                reader.Position = 0;
+
+                return reader;
+            }
+
+            if (File.Exists(path))
+            {
+                pool[path] = new Mp3FileReader(path);
+                
+                Log.Loud($"[SoundBending.Managers.Audio] > GetReaderOrAdd: No reader for `{path}`; adding it to the pool");
+                
+                return pool[path];
+            }
+            
+            Log.Loud($"[SoundBending.Managers.Audio] > GetReaderOrAdd: Failed to find a file at `{path}`; returning dummy.mp3");
+            return new Mp3FileReader(Env.SfxRoot + "dummy.mp3");
+        }
+        
+        
         public static void Prepare()
         {
             Log.Open("[SoundBending.Managers.Audio] Prepare / Device List;");
@@ -26,18 +62,22 @@ namespace Managers
             for (var i = 0; i < WaveIn.DeviceCount; i++)
             {
                 var capabilities = WaveIn.GetCapabilities(i);
-                Log.Force("WaveIn  | `" + capabilities.ProductName + "`");
+                Log.Force("Input  | `" + capabilities.ProductName + "`");
             }
             
-            Log.Force("        | ");
+            Log.Force("       | ");
             
             for (var i = 0; i < WaveOut.DeviceCount; i++)
             {
                 var capabilities = WaveOut.GetCapabilities(i);
-                Log.Force("WaveOut | `" + capabilities.ProductName + "`");
+                Log.Force("Output | `" + capabilities.ProductName + "`");
             }
             
             Log.Close("[SoundBending.Managers.Audio] Prepare / Device List;");
+            
+            Populate(ref localPool, Env.SoundRoot);
+            Populate(ref remotePool, Env.SoundRoot);
+            Populate(ref sfxPool, Env.SfxRoot);
             
             MicIn = FindInput(Env.InputDevice);
             SpeakerOut = FindOutput(Env.OutputDevice);
@@ -52,11 +92,14 @@ namespace Managers
             SfxWaveOut = new WaveOutEvent();
             SfxWaveOut.DeviceNumber = SpeakerOut;
             
-            // just so these values aren't null
-            Mp3FileReader dummy = new Mp3FileReader(Env.SfxRoot + "dummy.mp3");
+            // Just so all these values aren't null
             
-            LocalVolumeProvider = new VolumeWaveProvider16(dummy);
-            RemoteVolumeProvider = new VolumeWaveProvider16(dummy);
+            LocalReader = GetReaderOrAdd(ref sfxPool, Env.SfxRoot + "dummy.mp3");
+            RemoteReader = GetReaderOrAdd(ref sfxPool, Env.SfxRoot + "dummy.mp3");
+            SfxReader = GetReaderOrAdd(ref sfxPool, Env.SfxRoot + "dummy.mp3");
+            
+            LocalVolumeProvider = new VolumeWaveProvider16(LocalReader);
+            RemoteVolumeProvider = new VolumeWaveProvider16(RemoteReader);
             
             LocalWaveOut.Init(LocalVolumeProvider);
             RemoteWaveOut.Init(RemoteVolumeProvider);
@@ -65,6 +108,23 @@ namespace Managers
             RemoteWaveOut.Play();
             
             Log.Loud("[SoundBending.Managers.Audio] Prepare: Audio initialized");
+        }
+        
+        public static void Deinit()
+        {
+            // noop lol
+            Log.Loud("[SoundBending.Managers.Audio] Deinit: noop lol");
+        }
+
+
+        public static void Populate(ref Dictionary<string, Mp3FileReader> pool, string root)
+        {
+            string[] fileList = Directory.GetFiles(root, "*.mp3", SearchOption.AllDirectories);
+
+            foreach (string fileName in fileList)
+            {
+                pool.Add(fileName, new Mp3FileReader(fileName));
+            }
         }
 
 
@@ -76,10 +136,12 @@ namespace Managers
 
                 if (capabilities.ProductName == productName)
                 {
+                    Log.Quiet("[SoundBending.Managers.Audio] > FindOutput: Found device `" + productName + "`!");
                     return i;
                 }
             }
 
+            Log.Loud("[SoundBending.Managers.Audio] > FindOutput: Could not find device `" + productName + "`");
             return -1;
         }
 
@@ -91,25 +153,28 @@ namespace Managers
 
                 if (capabilities.ProductName == productName)
                 {
+                    Log.Quiet("[SoundBending.Managers.Audio] > FindInput: Found device `" + productName + "`!");
                     return i;
                 }
             }
 
+            Log.Loud("[SoundBending.Managers.Audio] > FindInput: Could not find device `" + productName + "`");
             return -1;
         }
-
+        
 
         public static void PlaySfx(string sfxName)
         {
-            MelonCoroutines.Start(playSfxCoroutine(Env.SfxRoot + sfxName + ".mp3"));
+            Log.Quiet("[SoundBending.Managers.Audio] > PlaySfx: Playing sfx `" + sfxName + "`");
+            MelonCoroutines.Start(PlaySfxCoroutine(Env.SfxRoot + sfxName + ".mp3"));
         }
 
-        private static IEnumerator playSfxCoroutine(string path)
+        private static IEnumerator PlaySfxCoroutine(string path)
         {
-            var reader = new Mp3FileReader(path);
+            SfxReader = GetReaderOrAdd(ref sfxPool, path);
 
             SfxWaveOut.Dispose();
-            SfxWaveOut.Init(reader);
+            SfxWaveOut.Init(SfxReader);
             SfxWaveOut.Play();
 
             while (SfxWaveOut.PlaybackState == PlaybackState.Playing)
@@ -120,24 +185,25 @@ namespace Managers
         
 
 
-        public static void PlaySound(string soundName)
-        {
+        public static void PlaySound(string soundName) => Log.Wrap(
+        "[SoundBending.Managers.Audio] > PlaySound", "Playing sound `" + soundName + "`", null, () => {
             string path = Env.SoundRoot + soundName + ".mp3";
             
             PlayLocal(path);
             PlayRemote(path);
-        }
+        });
 
 
         public static void PlayLocal(string path)
         {
-            MelonCoroutines.Start(playLocalCoroutine(path));
+            Log.Quiet("[SoundBending.Managers.Audio] > PlayLocal: Playing file at path `" + path + "`");
+            MelonCoroutines.Start(PlayLocalCoroutine(path));
         }
 
-        private static IEnumerator playLocalCoroutine(string path)
+        private static IEnumerator PlayLocalCoroutine(string path)
         {
-            var reader = new Mp3FileReader(path);
-            LocalVolumeProvider = new VolumeWaveProvider16(reader)
+            LocalReader = GetReaderOrAdd(ref localPool, path);
+            LocalVolumeProvider = new VolumeWaveProvider16(LocalReader)
             {
                 Volume = State.Volume
             };
@@ -155,14 +221,15 @@ namespace Managers
         
         public static void PlayRemote(string path)
         {
-            MelonCoroutines.Start(playRemoteCoroutine(path));
+            Log.Quiet("[SoundBending.Managers.Audio] > PlayRemote: Playing file at path `" + path + "`");
+            MelonCoroutines.Start(PlayRemoteCoroutine(path));
         }
 
-        private static IEnumerator playRemoteCoroutine(string path)
+        private static IEnumerator PlayRemoteCoroutine(string path)
         {
-            var reader = new Mp3FileReader(path);
+            RemoteReader = GetReaderOrAdd(ref remotePool, path);
             
-            RemoteVolumeProvider = new VolumeWaveProvider16(reader)
+            RemoteVolumeProvider = new VolumeWaveProvider16(RemoteReader)
             {
                 Volume = State.Volume
             };
@@ -179,6 +246,8 @@ namespace Managers
 
         public static IEnumerator Feed(int sourceDeviceNumber, int sinkDeviceNumber)
         {
+            Log.Loud($"[SoundBending.Managers.Audio] > Feed (Coroutine): Feeding source #{sourceDeviceNumber} -> sink #{sinkDeviceNumber}");
+            
             // Set up the microphone input
             var source = new WaveInEvent
             {
@@ -215,9 +284,14 @@ namespace Managers
 
             // Begin recording from the microphone
             source.StartRecording();
+            
+            Log.Loud("[SoundBending.Managers.Audio] > Feed (Coroutine): Active!");
 
             // Keep MelonLoader’s coroutine alive while audio is playing
-            yield return new WaitForFixedUpdate();
+            while (true)
+            {
+                yield return new WaitForFixedUpdate();
+            }
         }
     }
 }

@@ -41,16 +41,20 @@ namespace Managers
             Log.Loud("[SoundBending.Managers.Input] Prepare: Input initialized");
         }
         
+        public static void Deinit()
+        {
+            // noop lol
+            Log.Loud("[SoundBending.Managers.Input] Deinit: noop lol");
+        }
+        
         
         public static bool AllActive(params Binding[] inputs)
         {
-            Log.Open("[SoundBending.Managers.Input] > AllActive;");
-            
             foreach (var input in inputs)
             {
                 if (!input.Active())
                 {
-                    Log.Quiet("maps `" + 
+                    Log.Quiet("[SoundBending.Managers.Input] > AllActive: maps `" + 
                               string.Join("; ", inputs.Select(i => i.map.name).ToList()) + 
                               "` returning false");
                     
@@ -58,11 +62,9 @@ namespace Managers
                 }
             }
             
-            Log.Loud("maps `" + 
+            Log.Loud("[SoundBending.Managers.Input] > AllActive: maps `" + 
                      string.Join("; ", inputs.Select(i => i.map.name).ToList()) + 
                      "` returning true");
-            
-            Log.Close("[SoundBending.Managers.Input] > AllActive;");
             
             return true;
         }

@@ -9,17 +9,18 @@ namespace Managers
     {
         public static void Prepare()
         {
+            // noop lol
             Log.Loud("[SoundBending.Managers.SoundboardActions] Prepare: Soundboard actions initialized (noop)");
-            // noop
+        }
+        
+        public static void Deinit()
+        {
+            // noop lol
+            Log.Loud("[SoundBending.Managers.SoundboardActions] Deinit: noop lol");
         }
         
         public static IEnumerator Resume()
         {
-            if (!State.Paused || Audio.LocalWaveOut.PlaybackState == PlaybackState.Playing)
-            {
-                yield break;
-            }
-
             if (State.SoundChanged)
             {
                 Audio.PlaySound(State.CurrentSound);
@@ -30,7 +31,7 @@ namespace Managers
             Audio.LocalWaveOut.Play();
             Audio.RemoteWaveOut.Play();
 
-            while (Audio.LocalWaveOut.PlaybackState != PlaybackState.Playing)
+            while (Audio.LocalWaveOut.PlaybackState == PlaybackState.Playing)
             {
                 yield return new WaitForFixedUpdate();
             }
@@ -64,7 +65,7 @@ namespace Managers
             Audio.RemoteVolumeProvider.Volume = State.Volume;
             Audio.LocalVolumeProvider.Volume = State.Volume;
 
-            MelonLogger.Msg($"~~ [SoundBending volup] ~~   volume = {State.Volume}");
+            Log.Loud($"[SoundBending.Managers.SoundboardActions] VolumeUp: Volume = {State.Volume}");
 
             Audio.PlaySfx("volchange");
         }
@@ -86,7 +87,7 @@ namespace Managers
 
             Audio.PlaySfx("volchange");
 
-            MelonLogger.Msg($"~~ [SoundBending voldown] ~~   volume = {State.Volume}");
+            Log.Loud($"[SoundBending.Managers.SoundboardActions] VolumeDown: Volume = {State.Volume}");
         }
 
 
@@ -103,7 +104,7 @@ namespace Managers
 
             State.PlayOnLoad = !State.PlayOnLoad;
 
-            MelonLogger.Msg($"~~ [SoundBending] ~~   playOnLoad = {State.PlayOnLoad}");
+            Log.Loud($"[SoundBending.Managers.SoundboardActions] ToggleAutoplay: PlayOnLoad = {State.PlayOnLoad}");
         }
 
 
@@ -120,46 +121,74 @@ namespace Managers
 
             State.Muted = !State.Muted;
 
-            MelonLogger.Msg($"~~ [SoundBending] ~~   muted = {State.Muted}");
+            Log.Loud($"[SoundBending.Managers.SoundboardActions] ToggleMute: Muted = {State.Muted}");
         }
 
 
         public static void NextAudioFile()
         {
-            Audio.PlaySfx("next_audio");
-
             State.NextSound();
+            
+            if (Audio.LocalWaveOut.PlaybackState == PlaybackState.Playing)
+            {
+                Audio.LocalWaveOut.Stop();
+                Audio.RemoteWaveOut.Stop();
+                
+                Audio.PlaySound(State.CurrentSound);
 
+                return;
+            }
+            
+            Audio.PlaySfx("next_audio");
+            
             State.SoundChanged = true;
+            
+            Log.Loud("[SoundBending.Managers.SoundboardActions] NextAudioFile: Next track selected");
         }
 
 
         public static void TogglePlayback()
         {
-            // ================== RESUME ================== //
-
+            // Playback has finished, but not paused - just restart
+            if (!State.Paused && Audio.LocalWaveOut.PlaybackState != PlaybackState.Playing)
+            {
+                Log.Loud("[SoundBending.Managers.SoundboardActions] TogglePlayback: Playback has already finished; restarting");
+                
+                MelonCoroutines.Start(Restart());
+                
+                return;
+            }
+            
             if (State.Paused)
             {
-                if (Audio.LocalWaveOut?.PlaybackState != PlaybackState.Playing)
+                if (Audio.LocalWaveOut.PlaybackState != PlaybackState.Playing)
                 {
                     MelonCoroutines.Start(Resume());
                 }
-
-                State.Paused = false;
-
-                MelonLogger.Msg("~~ [SoundBending] ~~   resumed");
-
-                return;
             }
+            else
+            {
+                Audio.LocalWaveOut.Pause();
+                Audio.RemoteWaveOut.Pause();
+            }
+            
+            State.Paused = !State.Paused;
 
-            // ================== STOP ================== //
+            Log.Loud($"[SoundBending.Managers.SoundboardActions] TogglePlayback: Paused = {State.Paused}");
+        }
 
-            Audio.LocalWaveOut?.Pause();
-            Audio.RemoteWaveOut?.Pause();
+        private static IEnumerator Restart()
+        {
+            Audio.LocalReader.Position = 0;
+            Audio.RemoteReader.Position = 0;
+            
+            Audio.LocalWaveOut.Play();
+            Audio.RemoteWaveOut.Play();
 
-            State.Paused = true;
-
-            MelonLogger.Msg("~~ [SoundBending] ~~   paused");
+            while (Audio.LocalWaveOut.PlaybackState == PlaybackState.Playing)
+            {
+                yield return new WaitForFixedUpdate();
+            }
         }
     }
 }

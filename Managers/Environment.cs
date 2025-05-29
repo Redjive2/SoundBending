@@ -1,17 +1,21 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.IO;
 using MelonLoader;
 using MelonLoader.Utils;
 using Newtonsoft.Json;
+using SoundBending;
+using UnityEngine;
 
 //
-//      Manages configuration data
+//      Manages the environment and configuration data.
 //
 
 namespace Managers
 {
     public static class Env
     {
+        // If false (on startup and shutdown) use raw MelonLogger + File.AppendAllText, else (after startup, before shutdown) use the Log manager. Set by Prepare.
         private static bool useLogger;
         
         // Handles local logging before AND after Log is prepared, since the logging manager relies on Env data, so Env is prepared first. chicken-or-the-egg and all that.
@@ -29,9 +33,11 @@ namespace Managers
         
         public static void Prepare()
         {
+            // Ensures the environment is correctly populated and reset.
+            
             File.Create(LogfilePath).Close();
             
-            File.WriteAllText(LogfilePath, string.Empty);
+            File.WriteAllText(LogfilePath, $"[===============| SoundBending V{BuildInfo.Version} -- Latest.log -- opened at {DateTime.Now.ToShortTimeString()} |===============]\n");
             
             if (!Directory.Exists(MelonEnvironment.UserDataDirectory + @"\SoundBending\"))
             {
@@ -60,7 +66,7 @@ namespace Managers
         ""Strict"": true
     },
 
-    ""LolLevel"": 2
+    ""LogLevel"": 2
 }");
 
                 Msg("[SoundBending.Managers.Env] Prepare: You forgot the configuration file, goober.");
@@ -78,16 +84,20 @@ namespace Managers
             
             useLogger = true;
         }
+        
+        public static void Deinit()
+        {
+            // noop lol
+            useLogger = false;
+            Msg("|   [SoundBending.Managers.Environment] Deinit: noop lol");
+            Msg("<< [SoundBending.Mod] OnApplicationQuit;");
+            Msg($"[===============| SoundBending V{BuildInfo.Version} -- Latest.log -- closed at {DateTime.Now.ToShortTimeString()} |===============]");
+        }
 
         public static readonly string SoundRoot = MelonEnvironment.UserDataDirectory + @"\SoundBending\Sounds\";
         public static readonly string SfxRoot = MelonEnvironment.UserDataDirectory + @"\SoundBending\Sfx\";
-        
-        public static readonly string NBSoundRoot = MelonEnvironment.UserDataDirectory + @"\NameBending\soundbendingSounds\";
 
         private static readonly string ConfigPath = MelonEnvironment.UserDataDirectory + @"\SoundBending\Config.json";
-
-        public static readonly string NBNamePath = MelonEnvironment.UserDataDirectory + @"\NameBending\customBentName.json";
-        public static readonly string NBTitlePath = MelonEnvironment.UserDataDirectory + @"\NameBending\customBentTitle.json";
         
         public static readonly string LogfilePath = MelonEnvironment.UserDataDirectory + @"\SoundBending\Latest.log";
 
@@ -126,13 +136,47 @@ namespace Managers
             public int LogLevel;
         }
 
+        private static readonly Configuration DefaultConfig = new Configuration
+        {
+            Services = new List<string>(),
+            
+            NamebendingIntegration = new Configuration.NamebendingIntegrationSettings
+            {
+                Prefer = "customBentName",
+                Strict = true
+            },
+            
+            Devices = new Configuration.DeviceMap
+            {
+                Input = "nothing lol",
+                Output = "nothing lol",
+                PipeOutput = "nothing lol"
+            },
+            
+            LogLevel = 2
+        };
+
         public static void ReloadConfiguration()
         {
             string json = File.ReadAllText(ConfigPath);
+
+            try
+            {
+                Config = JsonConvert.DeserializeObject<Configuration>(json);
+            }
+            catch (JsonException except)
+            {
+                Msg("[SoundBending.Managers.Env] > ReloadConfiguration / ERROR: Failed to load configuration data. You probably wrote it wrong, stupid. Here's the error: " + except);
+                Msg("[SoundBending.Managers.Env] > ReloadConfiguration: Using the default configuration. No services will be active.");
+
+                Config = DefaultConfig;
+            }
             
-            Config = JsonConvert.DeserializeObject<Configuration>(json);
-            
-            if (Config.LogLevel > 0) Msg("[SoundBending.Managers.Env] > ReloadConfiguration: Configuration loaded with log level " + Config.LogLevel);
+            if (Config.LogLevel > 0)
+            {
+                Msg("[SoundBending.Managers.Env] > ReloadConfiguration: Configuration loaded with log level " +
+                    Config.LogLevel);
+            }
         }
     }
 }

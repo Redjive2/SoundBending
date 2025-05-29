@@ -11,7 +11,7 @@ namespace SoundBending
         public const string Description = "All the sound stuff"; // Description for the Mod.  (Set as null if none)
         public const string Author = "rdm8417"; // Author of the Mod.  (MUST BE SET)
         public const string Company = null; // Company that made the Mod.  (Set as null if none)
-        public const string Version = "0.9.1"; // Version of the Mod.  (MUST BE SET)
+        public const string Version = "1.0.0"; // Version of the Mod.  (MUST BE SET)
         public const string DownloadLink = null; // Download Link for the Mod.  (Set as null if none)
     }
 
@@ -37,7 +37,10 @@ namespace SoundBending
 
             MelonCoroutines.Start(Audio.Feed(Audio.MicIn, Audio.InputCableOut));
             
-            RefreshServices(sceneName);
+            if (Env.IsServiceEnabled("HighNoon")) HighNoonService.Setup();
+            if (Env.IsServiceEnabled("NoMute")) NoMuteService.Setup();
+            if (Env.IsServiceEnabled("NamebendingIntegration")) NamebendingIntegrationService.Setup();
+            if (Env.IsServiceEnabled("Soundboard")) SoundboardService.Setup();
 
             Log.Open("/ Activity check;");
 
@@ -51,7 +54,7 @@ namespace SoundBending
             Log.Loud("SoundBending active!");
         });
 
-        public override void OnUpdate()
+        public override void OnLateUpdate()
         {
             if (!startupComplete)
             {
@@ -66,7 +69,8 @@ namespace SoundBending
             });
         }
 
-        public override void OnSceneWasLoaded(int buildIndex, string sceneName)
+        // This is called slightly after the usual "OnSceneWasLoaded", hopefully keeping SoundBending from causing issues.
+        public override void OnSceneWasInitialized(int buildIndex, string sceneName)
         {
             if (!startupComplete)
             {
@@ -86,6 +90,25 @@ namespace SoundBending
                 if (Env.IsServiceEnabled("NamebendingIntegration")) NamebendingIntegrationService.SceneLoaded(sceneName);
                 if (Env.IsServiceEnabled("Soundboard")) SoundboardService.SceneLoaded(sceneName);
             });
+        }
+
+        public override void OnApplicationQuit()
+        {
+            Log.Open("[SoundBending.Mod] OnApplicationQuit;");
+            
+            if (Env.IsServiceEnabled("HighNoon")) HighNoonService.Cleanup();
+            if (Env.IsServiceEnabled("NoMute")) NoMuteService.Cleanup();
+            if (Env.IsServiceEnabled("NamebendingIntegration")) NamebendingIntegrationService.Cleanup();
+            if (Env.IsServiceEnabled("Soundboard")) SoundboardService.Cleanup();
+        
+            Log.Loud("/ Deinitializing managers;");
+
+            SoundboardActions.Deinit();
+            Input.Deinit();
+            Audio.Deinit();
+            State.Deinit();
+            Log.Deinit();
+            Env.Deinit();
         }
 
         

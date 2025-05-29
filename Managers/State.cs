@@ -45,9 +45,15 @@ namespace Managers
             
             Log.Loud("[SoundBending.Managers.State] Prepare: State initialized with sound list " + string.Join("; ", Sounds));
         }
+
+        public static void Deinit()
+        {
+            // noop lol
+            Log.Loud("[SoundBending.Managers.State] Deinit: noop lol");
+        }
         
         public static bool SoundChanged = true;
-        public static bool Paused;
+        public static bool Paused = true;
 
         public static bool PlayOnLoad = true;
 
